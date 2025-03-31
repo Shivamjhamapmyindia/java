@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quiz Application</title>
+</head>
+<body>
+
+<h1>Quiz Questions</h1>
+
+<!-- Add Question Form -->
+<h2>Add Question</h2>
+<form th:action="@{/quiz/add}" th:object="${question}" method="post">
+    <label>Question:</label>
+    <input type="text" th:field="*{questionText}" required/><br/>
+    <label>Answer:</label>
+    <input type="text" th:field="*{answer}" required/><br/>
+    <label>Options:</label>
+    <input type="text" th:field="*{options}" required/><br/>
+    <button type="submit">Add Question</button>
+</form>
+
+<!-- List Questions -->
+<h2>All Questions</h2>
+<table>
+    <tr>
+        <th>Question</th>
+        <th>Answer</th>
+        <th>Options</th>
+        <th>Actions</th>
+    </tr>
+    <tr th:each="question : ${questions}">
+        <td th:text="${question.questionText}"></td>
+        <td th:text="${question.answer}"></td>
+        <td th:text="${#strings.arrayJoin(question.options, ', ')}"></td>
+        <td>
+            <a th:href="@{/quiz/delete/{id}(id=${question.id})}">Delete</a>
+            <a th:href="@{/quiz/update/{id}(id=${question.id})}">Edit</a>
+        </td>
+    </tr>
+</table>
+
+<!-- Reset Questions -->
+<a href="/quiz/reset">Reset All Questions</a>
+
+</body>
+</html>
