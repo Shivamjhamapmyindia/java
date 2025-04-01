@@ -15,81 +15,95 @@ import javax.validation.Valid;
 public class QuestionService {
     @Autowired
     private QuestionRepository questionRepository;
+
     public class ResponseObject {
         private String status;
         private String message;
-        private Object data; // Use Object type to store the actual data (questions)
-    
-        // Constructor
+        private Object data;
+
         public ResponseObject(String status, String message) {
             this.status = status;
             this.message = message;
-            this.data = null; // Initialize as null, data can be set later
+            this.data = null;
         }
-    
-        // Getters and setters
+
         public String getStatus() {
             return status;
         }
-    
+
         public void setStatus(String status) {
             this.status = status;
         }
-    
+
         public String getMessage() {
             return message;
         }
-    
+
         public void setMessage(String message) {
             this.message = message;
         }
-    
+
         public Object getData() {
             return data;
         }
-    
+
         public void setData(Object data) {
             this.data = data;
         }
     }
-    
 
     public ResponseEntity<ResponseObject> addQuestion(@Valid QuestionModel question) {
         try {
-            // Save the question to the database
             questionRepository.save(question);
-
-            // Create response object with success status and message
             ResponseObject response = new ResponseObject("success", "Question added successfully");
-
-            // Return the response object with HTTP status CREATED
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
-            // Create response object with error status and message
             ResponseObject response = new ResponseObject("error", "Error adding question: " + e.getMessage());
-
-            // Return the response object with HTTP status INTERNAL_SERVER_ERROR
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-  public ResponseEntity<ResponseObject> getQuestions() {
-    try {
-        // Retrieve all questions from the database
-        List<QuestionModel> questions = questionRepository.findAll();
-
-        // Create a success response object with status "success" and questions as the data
-        ResponseObject response = new ResponseObject("success", "Questions retrieved successfully");
-        response.setData(questions); // Set the questions as part of the response data
-        // Return response with HTTP status OK (200)
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (Exception e) {
-        // Create error response object with status "error" and error message
-        ResponseObject response = new ResponseObject("error", "Error getting questions: " + e.getMessage());
-
-        // Return response with HTTP status INTERNAL_SERVER_ERROR (500)
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ResponseObject> getQuestions() {
+        try {
+            List<QuestionModel> questions = questionRepository.findAll();
+            ResponseObject response = new ResponseObject("success", "Questions retrieved successfully");
+            response.setData(questions);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            ResponseObject response = new ResponseObject("error", "Error getting questions: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-}
+
+    public ResponseEntity<ResponseObject> deleteQuestion(String id) {
+        try {
+            questionRepository.deleteById(id);
+            ResponseObject response = new ResponseObject("success", "Question deleted successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            ResponseObject response = new ResponseObject("error", "Error deleting question: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<ResponseObject> updateQuestion(String id, QuestionModel question) {
+        try {
+            QuestionModel existingQuestion = questionRepository.findById(id).orElse(null);
+
+            if (existingQuestion == null) {
+                ResponseObject response = new ResponseObject("error", "Question not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            existingQuestion.setQuestion(question.getQuestion());
+            existingQuestion.setOptions(question.getOptions());
+            existingQuestion.setCorrectOption(question.getCorrectOption());
+            questionRepository.save(existingQuestion);
+            ResponseObject response = new ResponseObject("success", "Question updated successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            ResponseObject response = new ResponseObject("error", "Error updating question: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

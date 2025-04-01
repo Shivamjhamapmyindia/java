@@ -1,10 +1,13 @@
 package com.learningrestapi.learningrestapi.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.learningrestapi.learningrestapi.model.QuestionModel;
@@ -44,5 +47,15 @@ public class QuizController {
     @ResponseBody
     public ResponseEntity<ResponseObject> getQuestions() {
         return questionService.getQuestions(); // Delegate to the service
+    }
+
+    @DeleteMapping("/deleteQuestion")
+    public ResponseEntity<ResponseObject> deleteQuestion(@RequestParam("id") String id) {
+        return questionService.deleteQuestion(id); // Delegate to the service
+    }
+
+    @PutMapping("/updateQuestion")
+    public ResponseEntity<ResponseObject> updateQuestion(@RequestParam("id") String id, @RequestBody QuestionModel question) {
+        return questionService.updateQuestion(id, question); // Delegate to the service
     }
 }
